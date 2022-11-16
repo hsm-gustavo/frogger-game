@@ -1,20 +1,7 @@
 import pygame
 from sys import exit
 from random import randint
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load("Frogger/graphics/sapo/sapo_stand.png").convert_alpha()
-        self.rect = self.image.get_rect(center = (336,694))
-    def player_input(self):
-        keys = pygame.key.get_pressed()
-        if (keys[pygame.K_UP] or keys[pygame.K_w]) and move_auth:
-            self.rect.y-=24
-    
-    def update(self):
-        self.player_input()
-        
+      
 
 def sapo_default_pos():
     sapo_rect.x = 318
@@ -219,9 +206,6 @@ start_time = 90
 vidas = 10
 end_game = False
 
-player = pygame.sprite.GroupSingle()
-player.add(Player())
-
 #tela de inicio
 title_surf = pygame.image.load("Frogger/graphics/title.png").convert_alpha()
 title_rect = title_surf.get_rect(center = (WIDTH//2,150))
@@ -260,11 +244,22 @@ rio_rect = pygame.Rect((0,148),(672,217))
 move_auth = True
 rmove_auth = True
 lmove_auth = True
-#sapo
+
+#  sapo
+#surfaces
 sapo_stand = pygame.image.load("Frogger/graphics/sapo/sapo_stand.png").convert_alpha()
 sapo_jump1 = pygame.image.load("Frogger/graphics/sapo/sapo_jump1.png").convert_alpha()
 sapo_jump2 = pygame.image.load("Frogger/graphics/sapo/sapo_jump2.png").convert_alpha()
+sapo_l_1 = pygame.image.load("Frogger/graphics/sapo/sapo_side_stand.png").convert_alpha()
+sapo_l_2 = pygame.image.load("Frogger/graphics/sapo/sapo_side_jump1.png").convert_alpha()
+sapo_l_3 = pygame.image.load("Frogger/graphics/sapo/sapo_side_jump2.png").convert_alpha()
+sapo_r_1 = pygame.transform.flip(sapo_l_1,True,False)
+sapo_r_2 = pygame.transform.flip(sapo_l_2,True,False)
+sapo_r_3 = pygame.transform.flip(sapo_l_3,True,False)
+#framelists
 sapo_fw = [sapo_stand,sapo_jump1,sapo_jump2]
+sapo_left = [sapo_l_1,sapo_l_2,sapo_l_3]
+sapo_right = [sapo_r_1,sapo_r_2,sapo_r_3]
 sapo_index = 0
 sapo_surf = sapo_fw[sapo_index]
 sapo_rect = sapo_surf.get_rect(center = (336,699))
@@ -342,7 +337,7 @@ seconds = pygame.USEREVENT
 pygame.time.set_timer(seconds,ms)
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer,1000)
-large_wood_timer = pygame.USEREVENT + 6
+large_wood_timer = pygame.USEREVENT + 7
 pygame.time.set_timer(large_wood_timer,1500)
 turtle_timer = pygame.USEREVENT + 2
 pygame.time.set_timer(turtle_timer,3000)
@@ -353,7 +348,7 @@ pygame.time.set_timer(turtle_anim_timer,350)
 text_timer = pygame.USEREVENT + 5
 pygame.time.set_timer(text_timer,1000)
 sapo_anim_timer = pygame.USEREVENT + 6
-pygame.time.set_timer(sapo_anim_timer,3000)
+pygame.time.set_timer(sapo_anim_timer,60)
 
 #main loop
 while True:
@@ -361,6 +356,7 @@ while True:
     hi_score = get_high_score()
     store_time = get_cur_time()
     final_score = get_cur_score()
+
     #event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -369,19 +365,22 @@ while True:
         if ativo:
             if event.type == pygame.KEYDOWN:            
                 if event.key in [pygame.K_UP,pygame.K_w] and move_auth:
+                    fw=True
                     sapo_rect.y-=48
                     score+=10
-                    fw=True
+                    
                     #and (618>=sapo_rect.x>18)
                 elif event.key in [pygame.K_LEFT,pygame.K_a] and lmove_auth:
+                    left=True
                     sapo_rect.x-=50
                     score+=10
-                    left=True
+                    
                     #and (618>sapo_rect.x>=18) 
                 elif event.key in [pygame.K_RIGHT,pygame.K_d] and rmove_auth:
+                    right=True
                     sapo_rect.x+=50
                     score+=10
-                    right=True
+                    
 
             if event.type == seconds:
                 start_time-=1
@@ -403,7 +402,7 @@ while True:
                 obj_surf = obj_frames[obj_frame_index]
 
             if event.type == large_wood_timer:
-                wood_list.append(wood_l_surf.get_rect(midleft = (-300,165)))
+                wood_list.append(wood_l_surf.get_rect(midleft = (-285,165)))
                 
 
             if event.type == turtle_timer:
@@ -424,12 +423,24 @@ while True:
             
             if event.type == sapo_anim_timer:
                 if fw:
-                    for i in range(3):
-                        sapo_index +=1
-                        if sapo_index>2:
-                            sapo_index=0
-                        sapo_surf = sapo_fw[sapo_index]
-                    fw=False
+                    sapo_index +=1
+                    if sapo_index>2:
+                        sapo_index=0
+                        fw=False
+                    sapo_surf = sapo_fw[sapo_index]
+                elif left:
+                    sapo_index +=1
+                    if sapo_index>2:
+                        sapo_index=0
+                        left=False
+                    sapo_surf = sapo_left[sapo_index]
+                elif right:
+                    sapo_index +=1
+                    if sapo_index>2:
+                        sapo_index=0
+                        right=False
+                    sapo_surf = sapo_right[sapo_index]
+                
 
         else:
             if event.type == text_timer:
@@ -454,6 +465,7 @@ while True:
         if snake_rect.x>=700:
             snake_rect.x=-800
         
+        #background
         tela.blit(bg_surf,bg_rect)
         
         #score
@@ -471,23 +483,18 @@ while True:
         obs_rect_llist = obstacle_lmove(obs_rect_llist)
         wood_list = wood_move(wood_list)
 
-
+        #desenhando cobra e sapo por cima de tudo
         tela.blit(snake_surf,snake_rect)
         tela.blit(sapo_surf,sapo_rect)
-
-        player.draw(tela)
-        player.update()
 
         #cronometro
         text("TEMPO:",510,760,"#ffff00")
         text(f"{start_time}",620,760,"#ffff00")
 
-        #checando colisão com cada obstaculo
+        #checando colisão com plataformas
         wood_cll = moving_collision(sapo_rect,wood_list)
         turtle_cll = moving_collision(sapo_rect,turtle_list)
-        #sapo_rect.y-rio_rect.y = 242
-        #None = nenhuma plataforma
-
+        
         #vidas/morte
         vidas-=death_onRiver()
         text("VIDAS:",10,760,"#ffffff")
@@ -498,7 +505,7 @@ while True:
             save_cur_time(start_time)
             end_game=True
 
-        #colisão com bordas
+        #colisão com bordas da tela
         if oneobs_collision(sapo_rect,rect_direita)==False:
             sapo_rect.x=636
             rmove_auth=False
@@ -512,6 +519,7 @@ while True:
         if oneobs_collision(sapo_rect,rect_cima)==False:
             sapo_rect.y=90
             move_auth=False
+        #colisão com grama perto dos objetivos
         elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_1.x) in range(0,19):
             move_auth=False
         elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_2.x) in range(-20,61):
@@ -539,7 +547,7 @@ while True:
         if start_time==0:
             ms=0
             
-        #colisao carros
+        #colisao com carros
         if obs_collision(sapo_rect,obs_rect_rlist)==False:
             vidas-=1
             sapo_default_pos()
@@ -558,15 +566,20 @@ while True:
                 
     
     else:
-        #player pos reset, titlescreen, highscore
+            #player pos reset, titlescreen, highscore
+        #timer reset
         ms=1000
+        #reset da lista de objetivos
         obj_listReset(obj_list)
+        #score,vida e posição
         score=0
         vidas=10
         sapo_default_pos()
+        #tela dividida do menu e o titulo
         pygame.draw.rect(tela,"#000047",pygame.Rect((0,0),(WIDTH,HEIGHT//2)))
         pygame.draw.rect(tela,"#000000",pygame.Rect((0,384),(WIDTH,HEIGHT//2)))
         tela.blit(title_surf,title_rect)
+        #textos do menu
         text(point_table,223,300,"#ffffff")
         text(instrucaop1,50,HEIGHT//2,"#ffffff")
         text(instrucaop2,50,430,"#ffffff")
@@ -577,6 +590,8 @@ while True:
         text("USE AS SETINHAS OU WASD PARA MOVER",50,545,"#ffffff")
         text("HI-SCORE",250,35,"#ffffff")
         text(f"{hi_score:05}",280,65,"#ffffff")
+
+        #calculo do plus bonus
         if end_game:
             move_auth=False
             rmove_auth=False
@@ -587,9 +602,7 @@ while True:
             if final_score>hi_score:
                 save_high_score(final_score)
 
-
-
     pygame.display.update()
     clock.tick(60)
 
-#TODO -> animations, check class thing agane, check functions thing later
+#TODO -> death animation, check functions thing later and double-check oop

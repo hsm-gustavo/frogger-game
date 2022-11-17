@@ -1,198 +1,7 @@
 import pygame
 from sys import exit
 from random import randint
-      
-
-def sapo_default_pos():
-    sapo_rect.x = 318
-    sapo_rect.y = 678
-
-def obstacle_rmove(obs_list):
-    if obs_list:
-        for rect in obs_list:
-            rect.x -= 5
-            tela.blit(car1_surf,rect)#627
-        obs_list = [obstacle for obstacle in obs_list if obstacle.x > -100]
-        return obs_list
-    else:
-        return []
-
-def faster_obs_rmove(obs_list):
-    if obs_list:
-        for rect in obs_list:
-            rect.x -= 10
-            if rect.y==530:
-                tela.blit(smallcar_surf,rect)#530
-            else:
-                tela.blit(truck_surf,rect)
-            
-        obs_list = [obstacle for obstacle in obs_list if obstacle.x > -100]
-        return obs_list
-    else:
-        return []
-
-def turtle_move(obs_list):
-    if obs_list:
-        for rect in obs_list:
-            rect.x -= 2
-            tela.blit(turtle_surf,rect)
-            
-        obs_list = [obstacle for obstacle in obs_list if obstacle.x > -150]
-        return obs_list
-    else:
-        return []
-
-def obstacle_lmove(obs_list):
-    if obs_list:
-        for rect in obs_list:
-            rect.x += 5
-            if rect.y>500:
-                tela.blit(car2_surf,rect)
-            elif 500>=rect.y>450:
-                tela.blit(car3_surf,rect)
-            
-            
-                
-        obs_list = [obstacle for obstacle in obs_list if obstacle.x < 772]
-        return obs_list
-    else:
-        return []
-
-def wood_move(obs_list):
-    if obs_list:
-        for rect in obs_list:
-            rect.x += 5
-            if rect.y==341:
-                tela.blit(wood_surf,rect)#(sapo_rect.y-rect.y)=49
-            elif rect.y==245:
-                tela.blit(wood_m_surf,rect)#49
-            else:
-                tela.blit(wood_l_surf,rect)#48
-                
-        obs_list = [obstacle for obstacle in obs_list if obstacle.x < 772]
-        return obs_list
-    else:
-        return []
-
-def obs_collision(player,obstacle_list):
-    #multiobs
-    if obstacle_list:
-        for obstacle_rect in obstacle_list:
-            if player.colliderect(obstacle_rect) and obstacle_rect.y not in [341,245,150]:
-                return False
-    return True
-
-def moving_collision(player,obstacle_list):
-    if obstacle_list:
-        for obstacle_rect in obstacle_list:
-            if obstacle_rect.y==341:
-                if player.colliderect(obstacle_rect):
-                    player.x+=5
-                    return True
-            elif obstacle_rect.y==292:
-                if player.colliderect(obstacle_rect):
-                    player.x-=2
-                    return True
-            elif obstacle_rect.y==245:
-                if player.colliderect(obstacle_rect):
-                    player.x+=5
-                    return True
-            elif obstacle_rect.y==199:
-                if player.colliderect(obstacle_rect):
-                    player.x-=2
-                    return True
-            elif obstacle_rect.y==150:
-                if player.colliderect(obstacle_rect):
-                    player.x+=5
-                    return True
-            else:
-                return False
-
-def oneobs_collision(player_rect,enemy_rect):
-    if player_rect.colliderect(enemy_rect):
-        return False
-    return True
-
-def river_collision(wood_cll,turtle_cll):
-    if (wood_cll or turtle_cll)==None and sapo_rect.colliderect(rio_rect):
-        return True
-    else:
-        return False
-    
-def death_onRiver():
-    death=0
-    if river_collision(wood_cll,turtle_cll):
-        death=1
-        sapo_default_pos()
-    return death
-
-def obj_resetOnTouch(player,obj_list):
-    if obj_list:
-        for rect in obj_list:
-            tela.blit(obj_surf,rect)
-            if player.colliderect(rect):
-                obj_list.remove(rect)
-                sapo_default_pos()
-                return True
-    return False          
-
-def obj_listReset(obj_list):
-    obj_list.clear()
-    obj_list.append(obj_rect_1)
-    obj_list.append(obj_rect_2)
-    obj_list.append(obj_rect_3)
-    obj_list.append(obj_rect_4)
-    obj_list.append(obj_rect_5)
-
-def text(instrucao,x,y,cor):
-    isurf = fonte.render(instrucao,False,cor)
-    rect = isurf.get_rect(bottomleft = (x,y))
-    return tela.blit(isurf,rect)
-
-def get_high_score():
-    high_score = 0
-    try:
-        high_score_file = open("Frogger/txts/high_score.txt","r")
-        high_score = int(high_score_file.read())
-        high_score_file.close()
-    except IOError:
-        return 0
-    return high_score
-
-def save_high_score(new_high_score):
-    high_score_file = open("Frogger/txts/high_score.txt","w")
-    high_score_file.write(str(new_high_score))
-    high_score_file.close()
-
-def get_cur_score():
-    score_cur = 0
-    try:
-        stored_score_file = open("Frogger/txts/stored_score.txt","r")
-        score_cur = int(stored_score_file.read())
-        stored_score_file.close()
-    except IOError:
-        return 0
-    return score_cur
-
-def save_cur_score(new_score):
-    stored_score_file = open("Frogger/txts/stored_score.txt","w")
-    stored_score_file.write(str(new_score))
-    stored_score_file.close()
-
-def get_cur_time():
-    time = 0
-    try:
-        stored_time_file = open("Frogger/txts/stored_time.txt","r")
-        time = int(stored_time_file.read())
-        stored_time_file.close()
-    except IOError:
-        return 0
-    return time
-
-def save_cur_time(new_time):
-    stored_time_file = open("Frogger/txts/stored_time.txt","w")
-    stored_time_file.write(str(new_time))
-    stored_time_file.close()
+import functions as f
 
 pygame.init()
 WIDTH = 224*3
@@ -245,6 +54,8 @@ move_auth = True
 rmove_auth = True
 lmove_auth = True
 
+
+
 #  sapo
 #surfaces
 sapo_stand = pygame.image.load("Frogger/graphics/sapo/sapo_stand.png").convert_alpha()
@@ -256,6 +67,7 @@ sapo_l_3 = pygame.image.load("Frogger/graphics/sapo/sapo_side_jump2.png").conver
 sapo_r_1 = pygame.transform.flip(sapo_l_1,True,False)
 sapo_r_2 = pygame.transform.flip(sapo_l_2,True,False)
 sapo_r_3 = pygame.transform.flip(sapo_l_3,True,False)
+
 #framelists
 sapo_fw = [sapo_stand,sapo_jump1,sapo_jump2]
 sapo_left = [sapo_l_1,sapo_l_2,sapo_l_3]
@@ -353,9 +165,9 @@ pygame.time.set_timer(sapo_anim_timer,60)
 #main loop
 while True:
     #atualiza o highscore assim que inicia
-    hi_score = get_high_score()
-    store_time = get_cur_time()
-    final_score = get_cur_score()
+    hi_score = f.get_high_score()
+    store_time = f.get_cur_time()
+    final_score = f.get_cur_score()
 
     #event loop
     for event in pygame.event.get():
@@ -470,53 +282,54 @@ while True:
         
         #score
         cur_score = score
-        text("SCORE",100,35,"#ffffff")
-        text(f"{cur_score:05}",100,65,"#ffffff")
+        f.text("SCORE",100,35,"#ffffff",fonte,tela)
+        f.text(f"{cur_score:05}",100,65,"#ffffff",fonte,tela)
         if cur_score>hi_score:
-            save_high_score(cur_score)
+            f.save_high_score(cur_score)
               
         #obstaculos que vem da direita
-        obs_rect_rlist = obstacle_rmove(obs_rect_rlist)
-        faster_obs_list = faster_obs_rmove(faster_obs_list) 
-        turtle_list = turtle_move(turtle_list)       
+        obs_rect_rlist = f.obstacle_rmove(obs_rect_rlist,tela,car1_surf)
+        faster_obs_list = f.faster_obs_rmove(faster_obs_list,tela,smallcar_surf,truck_surf) 
+        turtle_list = f.turtle_move(turtle_list,tela,turtle_surf)       
         #obstaculos que vem da esquerda
-        obs_rect_llist = obstacle_lmove(obs_rect_llist)
-        wood_list = wood_move(wood_list)
+        obs_rect_llist = f.obstacle_lmove(obs_rect_llist,tela,car2_surf,car3_surf)
+        wood_list = f.wood_move(wood_list,tela,wood_surf,wood_m_surf,wood_l_surf)
 
         #desenhando cobra e sapo por cima de tudo
         tela.blit(snake_surf,snake_rect)
         tela.blit(sapo_surf,sapo_rect)
 
         #cronometro
-        text("TEMPO:",510,760,"#ffff00")
-        text(f"{start_time}",620,760,"#ffff00")
+        f.text("TEMPO:",510,760,"#ffff00",fonte,tela)
+        f.text(f"{start_time}",620,760,"#ffff00",fonte,tela)
 
         #checando colisão com plataformas
-        wood_cll = moving_collision(sapo_rect,wood_list)
-        turtle_cll = moving_collision(sapo_rect,turtle_list)
+        wood_cll = f.moving_collision(sapo_rect,wood_list)
+        turtle_cll = f.moving_collision(sapo_rect,turtle_list)
         
         #vidas/morte
-        vidas-=death_onRiver()
-        text("VIDAS:",10,760,"#ffffff")
-        text(f"x{vidas}",115,760,"#ffffff")
+        vidas-=f.death_onRiver(wood_cll,turtle_cll,sapo_rect,rio_rect)
+        f.text("VIDAS:",10,760,"#ffffff",fonte,tela)
+        f.text(f"x{vidas}",115,760,"#ffffff",fonte,tela)
         if vidas==0:
             ativo=False
-            save_cur_score(cur_score)
-            save_cur_time(start_time)
+            f.save_cur_score(cur_score)
+            f.save_cur_time(start_time)
             end_game=True
+        
 
         #colisão com bordas da tela
-        if oneobs_collision(sapo_rect,rect_direita)==False:
+        if f.oneobs_collision(sapo_rect,rect_direita)==False:
             sapo_rect.x=636
             rmove_auth=False
         else:
             rmove_auth=True
-        if oneobs_collision(sapo_rect,rect_esquerda)==False:
+        if f.oneobs_collision(sapo_rect,rect_esquerda)==False:
             sapo_rect.x=0
             lmove_auth=False
         else:
             lmove_auth=True
-        if oneobs_collision(sapo_rect,rect_cima)==False:
+        if f.oneobs_collision(sapo_rect,rect_cima)==False:
             sapo_rect.y=90
             move_auth=False
         #colisão com grama perto dos objetivos
@@ -536,7 +349,7 @@ while True:
             move_auth=True
         
         #colisao com objetivo
-        if obj_resetOnTouch(sapo_rect,obj_list):
+        if f.obj_resetOnTouch(sapo_rect,obj_list,tela,obj_surf):
             start_time+=10
             score+=50
         
@@ -548,21 +361,25 @@ while True:
             ms=0
             
         #colisao com carros
-        if obs_collision(sapo_rect,obs_rect_rlist)==False:
+        if f.obs_collision(sapo_rect,obs_rect_rlist)==False:
             vidas-=1
-            sapo_default_pos()
+            f.sapo_default_pos(sapo_rect)
             
-        elif obs_collision(sapo_rect,obs_rect_llist)==False:
-            vidas-=1
-            sapo_default_pos()
             
-        elif obs_collision(sapo_rect,faster_obs_list)==False:
+        elif f.obs_collision(sapo_rect,obs_rect_llist)==False:
             vidas-=1
-            sapo_default_pos()
+            f.sapo_default_pos(sapo_rect)
             
-        elif oneobs_collision(sapo_rect,snake_rect)==False:
+            
+        elif f.obs_collision(sapo_rect,faster_obs_list)==False:
             vidas-=1
-            sapo_default_pos()
+            f.sapo_default_pos(sapo_rect)
+            
+            
+        elif f.oneobs_collision(sapo_rect,snake_rect)==False:
+            vidas-=1
+            f.sapo_default_pos(sapo_rect)
+            
                 
     
     else:
@@ -570,26 +387,26 @@ while True:
         #timer reset
         ms=1000
         #reset da lista de objetivos
-        obj_listReset(obj_list)
+        f.obj_listReset(obj_list,obj_rect_1,obj_rect_2,obj_rect_3,obj_rect_4,obj_rect_5)
         #score,vida e posição
         score=0
         vidas=10
-        sapo_default_pos()
+        f.sapo_default_pos(sapo_rect)
         #tela dividida do menu e o titulo
         pygame.draw.rect(tela,"#000047",pygame.Rect((0,0),(WIDTH,HEIGHT//2)))
         pygame.draw.rect(tela,"#000000",pygame.Rect((0,384),(WIDTH,HEIGHT//2)))
         tela.blit(title_surf,title_rect)
         #textos do menu
-        text(point_table,223,300,"#ffffff")
-        text(instrucaop1,50,HEIGHT//2,"#ffffff")
-        text(instrucaop2,50,430,"#ffffff")
-        text(instrucaop3,50,476,"#ffffff")
-        text(instrucaop4,50,510,"#ff0000")
-        text(press2p,120,700,"#ffffff")
-        text("TOME CUIDADO COM A ÁGUA",135,600,"#ff0000")
-        text("USE AS SETINHAS OU WASD PARA MOVER",50,545,"#ffffff")
-        text("HI-SCORE",250,35,"#ffffff")
-        text(f"{hi_score:05}",280,65,"#ffffff")
+        f.text(point_table,223,300,"#ffffff",fonte,tela)
+        f.text(instrucaop1,50,HEIGHT//2,"#ffffff",fonte,tela)
+        f.text(instrucaop2,50,430,"#ffffff",fonte,tela)
+        f.text(instrucaop3,50,476,"#ffffff",fonte,tela)
+        f.text(instrucaop4,50,510,"#ff0000",fonte,tela)
+        f.text(press2p,120,700,"#ffffff",fonte,tela)
+        f.text("TOME CUIDADO COM A ÁGUA",135,600,"#ff0000",fonte,tela)
+        f.text("USE AS SETINHAS OU WASD PARA MOVER",50,545,"#ffffff",fonte,tela)
+        f.text("HI-SCORE",250,35,"#ffffff",fonte,tela)
+        f.text(f"{hi_score:05}",280,65,"#ffffff",fonte,tela)
 
         #calculo do plus bonus
         if end_game:
@@ -597,12 +414,12 @@ while True:
             rmove_auth=False
             lmove_auth=False
             final_score+=(store_time*10)
-            text("SCORE",100,35,"#ffffff")
-            text(f"{final_score:05}",100,65,"#ffffff")
+            f.text("SCORE",100,35,"#ffffff",fonte,tela)
+            f.text(f"{final_score:05}",100,65,"#ffffff",fonte,tela)
             if final_score>hi_score:
-                save_high_score(final_score)
+                f.save_high_score(final_score)
 
     pygame.display.update()
     clock.tick(60)
 
-#TODO -> death animation, check functions thing later and double-check oop
+#TODO -> audio and idk, test i guess

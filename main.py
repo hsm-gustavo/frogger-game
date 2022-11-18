@@ -247,6 +247,10 @@ while True:
                 start_time-=1
                 if start_time==20:
                     time_ending.play()
+                #time-reset/return to menu
+                if start_time==0:
+                    ativo=False
+                    end_game=True
             
             if event.type == obstacle_timer:
                 #vindo da direita
@@ -439,9 +443,7 @@ while True:
         if obj_list==[]:
             end_game=True
 
-        #time-reset/return to menu
-        if start_time==0:
-            ms=0
+        
             
         #colisao com carros
         if f.obs_collision(sapo_rect,obs_rect_rlist)==False:

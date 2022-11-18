@@ -332,6 +332,10 @@ while True:
             if event.type == pygame.KEYDOWN and event.key==pygame.K_SPACE:
                     ativo=True
                     end_game=False
+                    move_auth=True
+                    rmove_auth=True
+                    lmove_auth=True
+                    dmove_auth=True
                     start_time=90              
                     
     if ativo:

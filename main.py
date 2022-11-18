@@ -43,18 +43,21 @@ bg_rect = bg_surf.get_rect(topleft = (0,0))
 rect_direita = pygame.Rect((WIDTH-1,0),(30,HEIGHT))
 rect_esquerda = pygame.Rect((-29,0),(30,HEIGHT))
 rect_cima = pygame.Rect((0,0),(WIDTH,93))
+rect_baixo = pygame.Rect((0,HEIGHT-57),(WIDTH,45))
 rect_fim_1 = pygame.Rect((0,93),(18,45))
 rect_fim_2 = pygame.Rect((78,93),(84,45))
 rect_fim_3 = pygame.Rect((222,93),(84,45))
 rect_fim_4 = pygame.Rect((366,93),(84,45))
 rect_fim_5 = pygame.Rect((510,93),(84,45))
 rect_fim_6 = pygame.Rect((WIDTH-21,93),(18,45))
-y_max = 102
+top_max = 102
+down_max = 33
 #rio
 rio_rect = pygame.Rect((0,148),(672,217))
 move_auth = True
 rmove_auth = True
 lmove_auth = True
+dmove_auth = True
 
 #  audios
 jump_sound = pygame.mixer.Sound("audios/moving.wav")
@@ -73,6 +76,9 @@ sapo_l_3 = pygame.image.load("graphics/sapo/sapo_side_jump2.png").convert_alpha(
 sapo_r_1 = pygame.transform.flip(sapo_l_1,True,False)
 sapo_r_2 = pygame.transform.flip(sapo_l_2,True,False)
 sapo_r_3 = pygame.transform.flip(sapo_l_3,True,False)
+sapo_d_1 = pygame.transform.flip(sapo_stand,False,True)
+sapo_d_2 = pygame.transform.flip(sapo_jump1,False,True)
+sapo_d_3 = pygame.transform.flip(sapo_jump2,False,True)
 
 #death
 death_1 = pygame.image.load("graphics/sapo/death/death_1.png").convert_alpha()
@@ -85,13 +91,15 @@ death_4 = pygame.image.load("graphics/sapo/death/death_4.png").convert_alpha()
 sapo_fw = [sapo_stand,sapo_jump1,sapo_jump2]
 sapo_left = [sapo_l_1,sapo_l_2,sapo_l_3]
 sapo_right = [sapo_r_1,sapo_r_2,sapo_r_3]
+sapo_down = [sapo_d_1,sapo_d_2,sapo_d_3]
 sapo_index = 0
 sapo_surf = sapo_fw[sapo_index]
 sapo_rect = sapo_surf.get_rect(center = (336,699))
 sapo_pos = (sapo_rect.x+18,sapo_rect.y)
-fw = False
+up = False
 left = False
 right = False
+down = False
 
 #death-related stuff
 death_frame_list = [death_1,death_2,death_3,death_4]
@@ -208,7 +216,7 @@ while True:
             #movimento
             if event.type == pygame.KEYDOWN:            
                 if event.key in [pygame.K_UP,pygame.K_w] and move_auth:
-                    fw=True
+                    up=True
                     jump_sound.play()
                     sapo_rect.y-=48
                     score+=10
@@ -226,6 +234,13 @@ while True:
                     jump_sound.play()
                     sapo_rect.x+=50
                     score+=10
+                
+                elif event.key in [pygame.K_DOWN,pygame.K_s] and dmove_auth:
+                    down=True
+                    jump_sound.play()
+                    sapo_rect.y+=48
+                    score+=10
+
                     
             
             if event.type == seconds:
@@ -270,11 +285,11 @@ while True:
                 turtle_surf = turtle_frames[turtle_frame_index]
             
             if event.type == sapo_anim_timer:
-                if fw:
+                if up:
                     sapo_index +=1
                     if sapo_index>2:
                         sapo_index=0
-                        fw=False
+                        up=False
                     sapo_surf = sapo_fw[sapo_index]
                 elif left:
                     sapo_index +=1
@@ -288,6 +303,12 @@ while True:
                         sapo_index=0
                         right=False
                     sapo_surf = sapo_right[sapo_index]
+                if down:
+                    sapo_index +=1
+                    if sapo_index>2:
+                        sapo_index=0
+                        down=False
+                    sapo_surf = sapo_down[sapo_index]
                 if dead:
                     
                     death_index+=1
@@ -378,22 +399,26 @@ while True:
         if f.oneobs_collision(sapo_rect,rect_cima)==False:
             sapo_rect.y=90
             move_auth=False
+        
+        elif (rect_baixo.y-sapo_rect.y)<=33:
+            dmove_auth=False
 
         #colisão com grama perto dos objetivos
-        elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_1.x) in range(0,19):
+        elif (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_1.x) in range(0,19):
             move_auth=False
-        elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_2.x) in range(-20,61):
+        elif (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_2.x) in range(-20,61):
             move_auth=False
-        elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_3.x) in range(-20,61):
+        elif (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_3.x) in range(-20,61):
             move_auth=False
-        elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_4.x) in range(-20,61):
+        elif (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_4.x) in range(-20,61):
             move_auth=False
-        elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_5.x) in range(-20,61):
+        elif (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_5.x) in range(-20,61):
             move_auth=False
-        elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_6.x)==-15:
+        elif (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_6.x)==-15:
             move_auth=False
         else:
             move_auth=True
+            dmove_auth=True
         
         #colisao com objetivo
         if f.obj_resetOnTouch(sapo_rect,obj_list,tela,obj_surf,empty_rect_list):
@@ -487,6 +512,7 @@ while True:
             move_auth=False
             rmove_auth=False
             lmove_auth=False
+            dmove_auth=False
             final_score+=(store_time*10)
             f.text("SCORE",100,35,"#ffffff",fonte,tela)
             f.text(f"{final_score:05}",100,65,"#ffffff",fonte,tela)
@@ -496,4 +522,4 @@ while True:
     pygame.display.update()
     clock.tick(60)
 
-#TODO -> idk test i guess
+#TODO -> idk test i guess/also remember to change readme

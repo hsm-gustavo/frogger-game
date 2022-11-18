@@ -10,13 +10,14 @@ tela = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Frogger")
 clock = pygame.time.Clock()
 ativo = False
-fonte = pygame.font.Font("Frogger/fonts/Retro Gaming.ttf",25)
+fonte = pygame.font.Font("fonts/Retro Gaming.ttf",25)
 start_time = 90
 vidas = 10
 end_game = False
+dead=False
 
 #tela de inicio
-title_surf = pygame.image.load("Frogger/graphics/title.png").convert_alpha()
+title_surf = pygame.image.load("graphics/title.png").convert_alpha()
 title_rect = title_surf.get_rect(center = (WIDTH//2,150))
 
 #score
@@ -33,8 +34,9 @@ instrucaop4 = "10 PTS x TEMPO RESTANTE"
 press2p = "APERTE ESPAÇO PARA JOGAR"
 text_counter = 0
 
+    #bg things
 #background
-bg_surf = pygame.image.load("Frogger/graphics/bg.png").convert_alpha()
+bg_surf = pygame.image.load("graphics/bg.png").convert_alpha()
 bg_rect = bg_surf.get_rect(topleft = (0,0))
 
 #bordas
@@ -54,19 +56,30 @@ move_auth = True
 rmove_auth = True
 lmove_auth = True
 
-
+#  audios
+jump_sound = pygame.mixer.Sound("audios/moving.wav")
+time_ending = pygame.mixer.Sound("audios/time_ending.wav")
+water_death = pygame.mixer.Sound("audios/water.wav")
+car_death = pygame.mixer.Sound("audios/car.wav")
 
 #  sapo
 #surfaces
-sapo_stand = pygame.image.load("Frogger/graphics/sapo/sapo_stand.png").convert_alpha()
-sapo_jump1 = pygame.image.load("Frogger/graphics/sapo/sapo_jump1.png").convert_alpha()
-sapo_jump2 = pygame.image.load("Frogger/graphics/sapo/sapo_jump2.png").convert_alpha()
-sapo_l_1 = pygame.image.load("Frogger/graphics/sapo/sapo_side_stand.png").convert_alpha()
-sapo_l_2 = pygame.image.load("Frogger/graphics/sapo/sapo_side_jump1.png").convert_alpha()
-sapo_l_3 = pygame.image.load("Frogger/graphics/sapo/sapo_side_jump2.png").convert_alpha()
+sapo_stand = pygame.image.load("graphics/sapo/sapo_stand.png").convert_alpha()
+sapo_jump1 = pygame.image.load("graphics/sapo/sapo_jump1.png").convert_alpha()
+sapo_jump2 = pygame.image.load("graphics/sapo/sapo_jump2.png").convert_alpha()
+sapo_l_1 = pygame.image.load("graphics/sapo/sapo_side_stand.png").convert_alpha()
+sapo_l_2 = pygame.image.load("graphics/sapo/sapo_side_jump1.png").convert_alpha()
+sapo_l_3 = pygame.image.load("graphics/sapo/sapo_side_jump2.png").convert_alpha()
 sapo_r_1 = pygame.transform.flip(sapo_l_1,True,False)
 sapo_r_2 = pygame.transform.flip(sapo_l_2,True,False)
 sapo_r_3 = pygame.transform.flip(sapo_l_3,True,False)
+
+#death
+death_1 = pygame.image.load("graphics/sapo/death/death_1.png").convert_alpha()
+death_2 = pygame.image.load("graphics/sapo/death/death_2.png").convert_alpha()
+death_3 = pygame.image.load("graphics/sapo/death/death_3.png").convert_alpha()
+death_4 = pygame.image.load("graphics/sapo/death/death_4.png").convert_alpha()
+
 
 #framelists
 sapo_fw = [sapo_stand,sapo_jump1,sapo_jump2]
@@ -75,39 +88,46 @@ sapo_right = [sapo_r_1,sapo_r_2,sapo_r_3]
 sapo_index = 0
 sapo_surf = sapo_fw[sapo_index]
 sapo_rect = sapo_surf.get_rect(center = (336,699))
+sapo_pos = (sapo_rect.x+18,sapo_rect.y)
 fw = False
 left = False
 right = False
 
-#cobra
-snake_frame_1 = pygame.image.load("Frogger/graphics/snake/snake_stand.png").convert_alpha()
-snake_frame_2 = pygame.image.load("Frogger/graphics/snake/snake_move1.png").convert_alpha()
-snake_frame_3 = pygame.image.load("Frogger/graphics/snake/snake_move2.png").convert_alpha()
+#death-related stuff
+death_frame_list = [death_1,death_2,death_3,death_4]
+death_index = 0
+death_surf = death_frame_list[death_index]
+death_rect = death_surf.get_rect(center = sapo_pos)
+
+# cobra
+snake_frame_1 = pygame.image.load("graphics/snake/snake_stand.png").convert_alpha()
+snake_frame_2 = pygame.image.load("graphics/snake/snake_move1.png").convert_alpha()
+snake_frame_3 = pygame.image.load("graphics/snake/snake_move2.png").convert_alpha()
 snake_frames = [snake_frame_1,snake_frame_2,snake_frame_3]
 snake_frame_index = 0
 snake_surf = snake_frames[snake_frame_index]
 snake_rect = snake_surf.get_rect(center = (-800,405))
 
-#carros
-car1_surf = pygame.image.load("Frogger/graphics/carros/car1.png").convert_alpha()
+# carros
+car1_surf = pygame.image.load("graphics/carros/car1.png").convert_alpha()
 car1_surf = pygame.transform.rotate(car1_surf,180)
 
-car2_surf = pygame.image.load("Frogger/graphics/carros/car2.png").convert_alpha()
+car2_surf = pygame.image.load("graphics/carros/car2.png").convert_alpha()
 
-car3_surf = pygame.image.load("Frogger/graphics/carros/car3.png").convert_alpha()
+car3_surf = pygame.image.load("graphics/carros/car3.png").convert_alpha()
 
-smallcar_surf = pygame.image.load("Frogger/graphics/carros/smallcar.png").convert_alpha()
+smallcar_surf = pygame.image.load("graphics/carros/smallcar.png").convert_alpha()
 
-truck_surf = pygame.image.load("Frogger/graphics/carros/truck.png").convert_alpha()
+truck_surf = pygame.image.load("graphics/carros/truck.png").convert_alpha()
 
-#plataformas
-wood_surf = pygame.image.load("Frogger/graphics/river/wood/wood.png").convert_alpha()
-wood_m_surf = pygame.image.load("Frogger/graphics/river/wood/wood_m.png").convert_alpha()
-wood_l_surf = pygame.image.load("Frogger/graphics/river/wood/wood_l.png").convert_alpha()
+# plataformas
+wood_surf = pygame.image.load("graphics/river/wood/wood.png").convert_alpha()
+wood_m_surf = pygame.image.load("graphics/river/wood/wood_m.png").convert_alpha()
+wood_l_surf = pygame.image.load("graphics/river/wood/wood_l.png").convert_alpha()
 
-turtle_frame_1 = pygame.image.load("Frogger/graphics/river/turtle/turtle_1.png").convert_alpha()
-turtle_frame_2 = pygame.image.load("Frogger/graphics/river/turtle/turtle_2.png").convert_alpha()
-turtle_frame_3 = pygame.image.load("Frogger/graphics/river/turtle/turtle_3.png").convert_alpha()
+turtle_frame_1 = pygame.image.load("graphics/river/turtle/turtle_1.png").convert_alpha()
+turtle_frame_2 = pygame.image.load("graphics/river/turtle/turtle_2.png").convert_alpha()
+turtle_frame_3 = pygame.image.load("graphics/river/turtle/turtle_3.png").convert_alpha()
 turtle_frames = [turtle_frame_1,turtle_frame_2,turtle_frame_3]
 turtle_frame_index = 0
 turtle_surf = turtle_frames[turtle_frame_index]
@@ -116,9 +136,9 @@ turtle_surf = turtle_frames[turtle_frame_index]
 wood_cll = False
 turtle_cll = False
 
-#objetivo
-obj_frame_1 = pygame.image.load("Frogger/graphics/obj/obj_1.png").convert_alpha()
-obj_frame_2 = pygame.image.load("Frogger/graphics/obj/obj_2.png").convert_alpha()
+# objetivo
+obj_frame_1 = pygame.image.load("graphics/obj/obj_1.png").convert_alpha()
+obj_frame_2 = pygame.image.load("graphics/obj/obj_2.png").convert_alpha()
 obj_frames = [obj_frame_1,obj_frame_2]
 obj_frame_index = 0
 obj_surf = obj_frames[obj_frame_index]
@@ -127,23 +147,32 @@ obj_rect_2 = pygame.Rect((168,93),(48,48))
 obj_rect_3 = pygame.Rect((312,93),(48,48))
 obj_rect_4 = pygame.Rect((456,93),(48,48))
 obj_rect_5 = pygame.Rect((600,93),(48,48))
+#(-100,-100)
+empty_rect_1 = pygame.Rect((-100,-100),(48,48))#(24,93)
+empty_rect_2 = pygame.Rect((-100,-100),(48,48))#(168,93)
+empty_rect_3 = pygame.Rect((-100,-100),(48,48))#(312,93)
+empty_rect_4 = pygame.Rect((-100,-100),(48,48))#(456,93)
+empty_rect_5 = pygame.Rect((-100,-100),(48,48))#(600,93)
+empty_rect_list = [pygame.Rect((-100,-100),(48,48)),pygame.Rect((-100,-100),(48,48)),pygame.Rect((-100,-100),(48,48)),pygame.Rect((-100,-100),(48,48)),pygame.Rect((-100,-100),(48,48))]
 
 
-#endgame
+empty_pos = (0,0)
+
+# endgame
 end_game_rect = pygame.Rect((0,0),(WIDTH,HEIGHT))
 
 
-#rects dos obstaculos
+# rects dos obstaculos e das plataformas
 obs_rect_rlist = []
 faster_obs_list = []
 turtle_list = []
 obs_rect_llist = []
 wood_list = []
 
-#rect dos objetivos
+# rect dos objetivos
 obj_list = [obj_rect_1,obj_rect_2,obj_rect_3,obj_rect_4,obj_rect_5]
 
-#timers
+# timers
 ms=1000
 seconds = pygame.USEREVENT
 pygame.time.set_timer(seconds,ms)
@@ -162,41 +191,48 @@ pygame.time.set_timer(text_timer,1000)
 sapo_anim_timer = pygame.USEREVENT + 6
 pygame.time.set_timer(sapo_anim_timer,60)
 
-#main loop
+# main loop
 while True:
-    #atualiza o highscore assim que inicia
+    # atualiza os txts assim que inicia
     hi_score = f.get_high_score()
     store_time = f.get_cur_time()
     final_score = f.get_cur_score()
 
-    #event loop
+    # event loop
     for event in pygame.event.get():
+        #quitar do jogo
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
         if ativo:
+            #movimento
             if event.type == pygame.KEYDOWN:            
                 if event.key in [pygame.K_UP,pygame.K_w] and move_auth:
                     fw=True
+                    jump_sound.play()
                     sapo_rect.y-=48
                     score+=10
                     
                     #and (618>=sapo_rect.x>18)
                 elif event.key in [pygame.K_LEFT,pygame.K_a] and lmove_auth:
                     left=True
+                    jump_sound.play()
                     sapo_rect.x-=50
                     score+=10
                     
                     #and (618>sapo_rect.x>=18) 
                 elif event.key in [pygame.K_RIGHT,pygame.K_d] and rmove_auth:
                     right=True
+                    jump_sound.play()
                     sapo_rect.x+=50
                     score+=10
                     
-
+            
             if event.type == seconds:
                 start_time-=1
-
+                if start_time==20:
+                    time_ending.play()
+            
             if event.type == obstacle_timer:
                 #vindo da direita
                 obs_rect_rlist.append(car1_surf.get_rect(center = (randint(700,850),648)))
@@ -252,7 +288,14 @@ while True:
                         sapo_index=0
                         right=False
                     sapo_surf = sapo_right[sapo_index]
-                
+                if dead:
+                    
+                    death_index+=1
+                    if death_index>3:
+                        death_index=0
+                        dead=False
+                    death_surf = death_frame_list[death_index]
+                    
 
         else:
             if event.type == text_timer:
@@ -298,7 +341,8 @@ while True:
         #desenhando cobra e sapo por cima de tudo
         tela.blit(snake_surf,snake_rect)
         tela.blit(sapo_surf,sapo_rect)
-
+        if dead:
+            tela.blit(death_surf,death_rect)  
         #cronometro
         f.text("TEMPO:",510,760,"#ffff00",fonte,tela)
         f.text(f"{start_time}",620,760,"#ffff00",fonte,tela)
@@ -308,7 +352,10 @@ while True:
         turtle_cll = f.moving_collision(sapo_rect,turtle_list)
         
         #vidas/morte
-        vidas-=f.death_onRiver(wood_cll,turtle_cll,sapo_rect,rio_rect)
+        if f.death_onRiver(wood_cll,turtle_cll,sapo_rect,rio_rect,death_rect)==1:
+            vidas-=f.death_onRiver(wood_cll,turtle_cll,sapo_rect,rio_rect,death_rect)
+            dead=True
+            water_death.play()
         f.text("VIDAS:",10,760,"#ffffff",fonte,tela)
         f.text(f"x{vidas}",115,760,"#ffffff",fonte,tela)
         if vidas==0:
@@ -317,7 +364,6 @@ while True:
             f.save_cur_time(start_time)
             end_game=True
         
-
         #colisão com bordas da tela
         if f.oneobs_collision(sapo_rect,rect_direita)==False:
             sapo_rect.x=636
@@ -332,6 +378,7 @@ while True:
         if f.oneobs_collision(sapo_rect,rect_cima)==False:
             sapo_rect.y=90
             move_auth=False
+
         #colisão com grama perto dos objetivos
         elif (sapo_rect.y-48)<=y_max and (sapo_rect.x-rect_fim_1.x) in range(0,19):
             move_auth=False
@@ -349,10 +396,17 @@ while True:
             move_auth=True
         
         #colisao com objetivo
-        if f.obj_resetOnTouch(sapo_rect,obj_list,tela,obj_surf):
+        if f.obj_resetOnTouch(sapo_rect,obj_list,tela,obj_surf,empty_rect_list):
             start_time+=10
             score+=50
         
+        if f.empty_rect_cll(sapo_rect,empty_rect_list):
+            vidas-=1
+            death_rect.x=sapo_rect.x
+            death_rect.y=sapo_rect.y
+            dead=True
+            water_death.play()
+
         if obj_list==[]:
             end_game=True
 
@@ -363,34 +417,54 @@ while True:
         #colisao com carros
         if f.obs_collision(sapo_rect,obs_rect_rlist)==False:
             vidas-=1
+            death_rect.x=sapo_rect.x
+            death_rect.y=sapo_rect.y
+            dead=True
+            car_death.play()
             f.sapo_default_pos(sapo_rect)
+            
             
             
         elif f.obs_collision(sapo_rect,obs_rect_llist)==False:
             vidas-=1
+            death_rect.x=sapo_rect.x
+            death_rect.y=sapo_rect.y
+            dead=True
+            car_death.play()
             f.sapo_default_pos(sapo_rect)
             
             
         elif f.obs_collision(sapo_rect,faster_obs_list)==False:
             vidas-=1
+            death_rect.x=sapo_rect.x
+            death_rect.y=sapo_rect.y
+            dead=True
+            car_death.play()
             f.sapo_default_pos(sapo_rect)
             
             
         elif f.oneobs_collision(sapo_rect,snake_rect)==False:
             vidas-=1
+            death_rect.x=sapo_rect.x
+            death_rect.y=sapo_rect.y
+            dead=True
+            car_death.play()
             f.sapo_default_pos(sapo_rect)
-            
+
+         
                 
     
     else:
             #player pos reset, titlescreen, highscore
         #timer reset
         ms=1000
-        #reset da lista de objetivos
+        #reset da lista de objetivos e da lista dos rects pós colisão
         f.obj_listReset(obj_list,obj_rect_1,obj_rect_2,obj_rect_3,obj_rect_4,obj_rect_5)
+        empty_rect_list = [pygame.Rect((-100,-100),(48,48)),pygame.Rect((-100,-100),(48,48)),pygame.Rect((-100,-100),(48,48)),pygame.Rect((-100,-100),(48,48)),pygame.Rect((-100,-100),(48,48))]
         #score,vida e posição
         score=0
         vidas=10
+        dead=False
         f.sapo_default_pos(sapo_rect)
         #tela dividida do menu e o titulo
         pygame.draw.rect(tela,"#000047",pygame.Rect((0,0),(WIDTH,HEIGHT//2)))
@@ -422,4 +496,4 @@ while True:
     pygame.display.update()
     clock.tick(60)
 
-#TODO -> audio and idk, test i guess
+#TODO -> idk test i guess

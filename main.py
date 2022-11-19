@@ -383,6 +383,7 @@ while True:
         #vidas/morte
         if f.death_onRiver(wood_cll,turtle_cll,sapo_rect,rio_rect,death_rect)==1:
             vidas-=f.death_onRiver(wood_cll,turtle_cll,sapo_rect,rio_rect,death_rect)
+            move_auth=True
             dead=True
             water_death.play()
         f.text("VIDAS:",10,760,"#ffffff",fonte,tela)
@@ -408,11 +409,13 @@ while True:
             sapo_rect.y=90
             move_auth=False
         
-        elif (rect_baixo.y-sapo_rect.y)<=33:
+        if (rect_baixo.y-sapo_rect.y)<=33:
             dmove_auth=False
+        else:
+            dmove_auth=True
 
         #colisão com grama perto dos objetivos
-        elif (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_1.x) in range(0,19):
+        if (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_1.x) in range(0,19):
             move_auth=False
         elif (sapo_rect.y-48)<=top_max and (sapo_rect.x-rect_fim_2.x) in range(-20,61):
             move_auth=False
@@ -426,7 +429,7 @@ while True:
             move_auth=False
         else:
             move_auth=True
-            dmove_auth=True
+            
         
         #colisao com objetivo
         if f.obj_resetOnTouch(sapo_rect,obj_list,tela,obj_surf,empty_rect_list):
